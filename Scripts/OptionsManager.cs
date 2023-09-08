@@ -14,7 +14,6 @@ public class OptionsManager : MonoBehaviour
         //0 audio 1 timer
         audioToggle = allToggles[0].isOn;
         timerToggle = allToggles[1].isOn;
-        Debug.Log("Test " + toggleInt + " " + allToggles[toggleInt].isOn);
         if(toggleInt == 1){
             TimerToggle();
         }
@@ -32,8 +31,7 @@ public class OptionsManager : MonoBehaviour
     public float startTime;
     public bool isTimerRunning;
     public Coroutine timerCo;
-    private IEnumerator UpdateTimer()
-    {
+    private IEnumerator UpdateTimer(){
         while (isTimerRunning){
         float elapsedTime = Time.time - startTime;
         int minutes = (int)(elapsedTime / 60);
@@ -42,7 +40,7 @@ public class OptionsManager : MonoBehaviour
         string timerTextString = $"{minutes}:{seconds:D2}";
         timerText.text = timerTextString;
 
-            yield return null; // Wait for the next frame
+            yield return null;
         }
     }
     public void StartTimer(){

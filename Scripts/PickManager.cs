@@ -105,8 +105,6 @@ public class PickManager : MonoBehaviour
         highlightCircleObj.SetActive(false);
     }
 
-    private List<int> availableIndices;
-
     public void AcquirePicks(List<int> newPicks, int segmentInt){
         used = false;
         inPlay = true;

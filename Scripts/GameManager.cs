@@ -28,9 +28,6 @@ public class GameManager : MonoBehaviour
 
     public GameObject ringObject;
     public Vector3[] ringScales;
-    // easy == 2 segments, advanced == 3, expert == 4, master == ???
-
-    // public int lastPickManagerInt;
     public int segmentCurrentCount;
     public int segmentMaxCount;
     public List<int> previousPickManagers;
@@ -43,19 +40,17 @@ public class GameManager : MonoBehaviour
     public GameObject textDirectObj;
     public void Generator(){
 
-        // allSegmentManagers[0].Generator();
         foreach(SegmentManager newSM in allSegmentManagers){
             newSM.Generator();
         }
 
         mainPickManager.Generator();
-
         allPickManagers[0].Generator();
+
         for(int y = 1; y < 12; y++){
             var newPM = Instantiate(allPickManagers[0], allPickManagers[0].transform.parent);
             allPickManagers[y] = newPM;
             newPM.myIndex = y;
-            // newPM.TestRandomize(UnityEngine.Random.Range(4, 5));
             newPM.UpdateRing();
         }
         allPickManagers[0].gameObject.transform.parent.gameObject.SetActive(false);
@@ -81,7 +76,6 @@ public class GameManager : MonoBehaviour
 
     public void DifficultySelection(int difficultyIndex){
         // novice 0, advanced 1, expert 2, master 4
-        // Debug.Log("DIFFICULTY " + difficultyIndex);
         
         ResetAll();
         OptionsManager.EndTimer();
@@ -176,7 +170,6 @@ public class GameManager : MonoBehaviour
         var elapsedTime = 0f;
         var loadTime = 1f;
     	while(elapsedTime < loadTime){
-    		// ringObject.transform.localScale = Vector3.Lerp(ringObject.transform.localScale, ringScales[newScaleIndex], (elapsedTime / loadTime));
             var getCG = allSegmentManagers[segmentToAlpha].GetComponent<CanvasGroup>(); 
             getCG.alpha = Mathf.Lerp(getCG.alpha, newAlpha, elapsedTime / loadTime);
     		elapsedTime += Time.deltaTime;
@@ -195,25 +188,17 @@ public class GameManager : MonoBehaviour
         var getParent = allPickManagers[0].gameObject.transform.parent;
          int childCount = getParent.childCount;
 
-        // Create a list to store the children
         List<Transform> childrenList = new List<Transform>();
 
-        // Add all children to the list
-        for (int i = 0; i < childCount; i++)
-        {
+        for (int i = 0; i < childCount; i++){
             childrenList.Add(getParent.GetChild(i));
         }
 
-        // Shuffle the list
         ShuffleList(childrenList);
-
-        // Reorder the children in the new randomized order
-        for (int i = 0; i < childCount; i++)
-        {
+        for (int i = 0; i < childCount; i++){
             childrenList[i].SetSiblingIndex(i);
         }
-        for (int i = 0; i < childCount; i++)
-        {
+        for (int i = 0; i < childCount; i++){
             allPickManagers[i] = childrenList[i].GetComponent<PickManager>();
             allPickManagers[i].myIndex = i;
         }
@@ -255,18 +240,15 @@ public class GameManager : MonoBehaviour
         for(int x = 0; x < allPickManagers[chosenPickManagerInt].pickStatus.Count; x++){
             if(allPickManagers[chosenPickManagerInt].pickStatus[x] == 1 && allSegmentManagers[chosenSegmentManagerInt].segmentStatus[x] == 0){
                 //incompelete
-                Debug.Log("INCORRECT!");
                 return;
             }
             if(allPickManagers[chosenPickManagerInt].pickStatus[x] == 1 && allSegmentManagers[chosenSegmentManagerInt].segmentStatus[x] == 1){
                 segmentSpots[x] = 1;
             }
         }
-        Debug.Log("CORRECT!");
 
         allSegmentManagers[chosenSegmentManagerInt].FillIn(allPickManagers[chosenPickManagerInt].pickStatus);
         allPickManagers[chosenPickManagerInt].FilledInSpots(allPickManagers[chosenPickManagerInt].pickStatus, chosenSegmentManagerInt);
-        // lastPickManagerInt = chosenPickManagerInt;
         
         previousPickManagers.Add(chosenPickManagerInt);
 
@@ -279,7 +261,7 @@ public class GameManager : MonoBehaviour
             if(chosenSegmentManagerInt == segmentMaxCount){
                 //you win!
                 
-        allPickManagers[0].gameObject.transform.parent.gameObject.SetActive(false);
+                allPickManagers[0].gameObject.transform.parent.gameObject.SetActive(false);
                 textDirectObj.SetActive(true);
                 textDirectObj.GetComponent<Text>().text = "Great Job!\nSelect a difficulty to begin.";
                 OptionsManager.EndTimer();
@@ -291,7 +273,6 @@ public class GameManager : MonoBehaviour
             else{
                 ToNextSegment();
             }
-            
         }
         FindNextPickManager(1);
     }
@@ -353,8 +334,8 @@ public void UndoButton(){
     }
 }
 
-public bool debugMode;
-public void DebugModeActivate(){debugMode = true;}   
-public void DebugModeDeactivate(){debugMode = false;}   
+    public bool debugMode;
+    public void DebugModeActivate(){debugMode = true;}   
+    public void DebugModeDeactivate(){debugMode = false;}   
 
 }

@@ -41,65 +41,62 @@ public class SegmentManager : MonoBehaviour
     }
 
     public void PokeHoles(int difficultyIndex, int segmentInt){
-        var holeAmount = 0;
-    var pickerAmount = 2;
-    // if (difficultyIndex == 0) { holeAmount = 4;}
-    Debug.Log("DIFFICULTY " + difficultyIndex);
-    var minMax = new Vector2Int(2, 4);
-    if (difficultyIndex == 1) { minMax = new Vector2Int(2, 5);}
-    if (difficultyIndex >= 2) { minMax = new Vector2Int(1, 5);}
+        var pickerAmount = 2;
+        var minMax = new Vector2Int(2, 4);
+        if (difficultyIndex == 1) { minMax = new Vector2Int(2, 5);}
+        if (difficultyIndex >= 2) { minMax = new Vector2Int(1, 5);}
 
-    foreach (GameObject newObj in allSegments){
-        newObj.SetActive(true);
-    }
-
-    availableIndices = GameManager.AvailableIndices();
-
-    List<List<int>> allChosenIndexes = new List<List<int>>();
-    var lastPick = 0;
-    for (int picker = 0; picker < pickerAmount; picker++){
-        List<int> chosenIndexes = new List<int>();
-        var pickAmount = UnityEngine.Random.Range(minMax.x, minMax.y);
-        //some fine tuning
-        var fineTune = 0;
-        if(difficultyIndex == 0 && pickAmount == 3){
-            fineTune = UnityEngine.Random.Range(0, 2);
-            if(fineTune == 0){pickAmount = 2;}
-        }
-        if(difficultyIndex == 1 && pickAmount == 4){
-            fineTune = UnityEngine.Random.Range(0, 2);
-            if(fineTune == 0){pickAmount = 2;}
-        }
-        if(difficultyIndex >= 2 && pickAmount == 1 && lastPick == 1){
-            pickAmount = UnityEngine.Random.Range(2, 4);
+        foreach (GameObject newObj in allSegments){
+            newObj.SetActive(true);
         }
 
-        lastPick = pickAmount;
+        availableIndices = GameManager.AvailableIndices();
 
-        for (int i = 0; i < pickAmount; i++){
-            int randomIndex = Random.Range(0, availableIndices.Count);
-            int selectedIndex = availableIndices[randomIndex];
-            chosenIndexes.Add(selectedIndex);
-            segmentStatus[selectedIndex] = 1;
-            availableIndices.RemoveAt(randomIndex);
+        List<List<int>> allChosenIndexes = new List<List<int>>();
+        var lastPick = 0;
+        for (int picker = 0; picker < pickerAmount; picker++){
+            List<int> chosenIndexes = new List<int>();
+            var pickAmount = UnityEngine.Random.Range(minMax.x, minMax.y);
+            //some fine tuning
+            var fineTune = 0;
+            if(difficultyIndex == 0 && pickAmount == 3){
+                fineTune = UnityEngine.Random.Range(0, 2);
+                if(fineTune == 0){pickAmount = 2;}
+            }
+            if(difficultyIndex == 1 && pickAmount == 4){
+                fineTune = UnityEngine.Random.Range(0, 2);
+                if(fineTune == 0){pickAmount = 2;}
+            }
+            if(difficultyIndex >= 2 && pickAmount == 1 && lastPick == 1){
+                pickAmount = UnityEngine.Random.Range(2, 4);
+            }
+
+            lastPick = pickAmount;
+
+            for (int i = 0; i < pickAmount; i++){
+                int randomIndex = Random.Range(0, availableIndices.Count);
+                int selectedIndex = availableIndices[randomIndex];
+                chosenIndexes.Add(selectedIndex);
+                segmentStatus[selectedIndex] = 1;
+                availableIndices.RemoveAt(randomIndex);
+            }
+
+            GameManager.ShuffleList(chosenIndexes);
+            allChosenIndexes.Add(chosenIndexes);
+
+            // for (int p = 0; p < chosenIndexes.Count; p++){
+            //     Debug.Log($"Picker {picker + 1}, List {p + 1}: {chosenIndexes[p]}");
+            // }
+        }
+        for(int z = 0; z < allSegments.Count; z++){
+            if(segmentStatus[z] == 1){allSegments[z].SetActive(false);}
         }
 
-        GameManager.ShuffleList(chosenIndexes);
-        allChosenIndexes.Add(chosenIndexes);
-
-        for (int p = 0; p < chosenIndexes.Count; p++){
-            Debug.Log($"Picker {picker + 1}, List {p + 1}: {chosenIndexes[p]}");
+        for(int x = 0; x < allChosenIndexes.Count; x++){
+            var getPickManager = GameManager.ReturnRandomPickManager();
+            getPickManager.gameObject.SetActive(true);
+            getPickManager.AcquirePicks(allChosenIndexes[x], segmentInt);
         }
-    }
-    for(int z = 0; z < allSegments.Count; z++){
-        if(segmentStatus[z] == 1){allSegments[z].SetActive(false);}
-    }
-
-    for(int x = 0; x < allChosenIndexes.Count; x++){
-        var getPickManager = GameManager.ReturnRandomPickManager();
-        getPickManager.gameObject.SetActive(true);
-        getPickManager.AcquirePicks(allChosenIndexes[x], segmentInt);
-    }
     
     }
     
