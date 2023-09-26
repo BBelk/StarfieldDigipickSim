@@ -1,7 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.ExceptionServices;
-using Mono.Cecil.Cil;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,6 +17,9 @@ public class PickManager : MonoBehaviour
     public List<int> segmentSpotsFilledIn;
     public int segmentIndex;
     public Text debugText;
+    public int segmentBelongsTo;
+
+    public List<int> initialPickStatus;
     public void Generator(){
         for(int x = 1; x < 32; x++){
             var newPick = Instantiate(allPicks[0], allPicks[0].transform.parent);
@@ -46,6 +47,51 @@ public class PickManager : MonoBehaviour
             }
             pickStatus[pickStatus.Count - 1] = firstValue;
         }
+        UpdateRing();
+    }
+
+    public List<int> tempPickStatus;
+
+    public int RotateToFitPick(int newSegmentManagerIndex, bool useInitial = false){
+        tempPickStatus = new List<int>();
+        if(!useInitial){tempPickStatus = new List<int>(pickStatus);}
+        if(useInitial){tempPickStatus = new List<int>(initialPickStatus);}
+        
+        var canMatch = false;
+
+        for (int x = 0; x < tempPickStatus.Count; x++){
+            int lastValue = tempPickStatus[tempPickStatus.Count - 1];
+            for (int i = tempPickStatus.Count - 1; i >= 1; i--){
+                tempPickStatus[i] = tempPickStatus[i - 1];
+            }
+            tempPickStatus[0] = lastValue;
+            canMatch = true;
+
+            for (int y = 0; y < tempPickStatus.Count; y++){
+                if (tempPickStatus[y] == 1){
+                    if (tempPickStatus[y] == 1 && GameManager.allSegmentManagers[newSegmentManagerIndex].segmentStatus[y] == 0){
+                        canMatch = false;
+                        break;
+                    }
+                }
+            }
+
+            if (canMatch){
+                // Debug.Log("CAN MATCH");
+                return x;
+                break;
+            }
+        }
+
+        if (!canMatch){
+            // Debug.Log("NOT A MATCH");
+            return -1;
+        }
+        return -1;
+    }
+
+    public void SetToInitialPickStatus(){
+        pickStatus = new List<int>(initialPickStatus);
         UpdateRing();
     }
 
@@ -98,6 +144,18 @@ public class PickManager : MonoBehaviour
         if(used || !inPlay){return;}
         highlightCircleObj.SetActive(true);
         GameManager.NewPickChosen(myIndex);
+        
+        var newSegmentManagerIndex = GameManager.chosenSegmentManagerInt;
+        var segmentMaxCount = GameManager.segmentMaxCount;
+
+        for(int x = newSegmentManagerIndex; x < segmentMaxCount; x++){
+            var newSMI = x;
+            var pmTurns = RotateToFitPick(newSMI);
+            if(pmTurns != -1){GameManager.allSegmentManagers[newSMI].ChangeColor(0);}
+            else{
+                GameManager.allSegmentManagers[newSMI].ChangeColor(1);
+            }
+        }
     }
 
     public void Deselected(){
@@ -113,13 +171,15 @@ public class PickManager : MonoBehaviour
                 if(x == newPicks[y]){pickStatus[x] = 1;}
             }
         }
+        initialPickStatus = new List<int>(pickStatus);
         for(int y = 0; y < UnityEngine.Random.Range(0, 32); y++){
             MovePicks(0);
         }
         UpdateRing();
         debugText.text = "";
+        segmentBelongsTo = segmentInt;
         //shows which ring the pick should go on, because my friend thought my code was broke BUT ITS NOT DENNIE
-        if(segmentInt != -1 && GameManager.debugMode){debugText.text = "" + (segmentInt + 1);}
+        if(segmentBelongsTo != -1 && GameManager.debugMode){debugText.text = "" + (segmentBelongsTo + 1);}
     }
 
     public void UndoPickManager(){
@@ -130,6 +190,14 @@ public class PickManager : MonoBehaviour
             segmentSpotsFilledIn[x] = 0;
         }
         UpdateRing();
+    }
+
+    public int CountStatus(){
+        var toReturn = 0;
+        for(int x = 0; x < pickStatus.Count; x++){
+            toReturn += pickStatus[x];
+        }
+        return toReturn;
     }
 
 }

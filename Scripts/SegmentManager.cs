@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SegmentManager : MonoBehaviour
 {
@@ -10,6 +10,7 @@ public class SegmentManager : MonoBehaviour
     public List<GameObject> allSegments;
     public List<int> segmentStatus;
     public List<int> availableIndices;
+    public List<Color> allColors;
     public void Generator(){
         for(int x = 1; x < 32; x++){
             var newSegment = Instantiate(allSegments[0], allSegments[0].transform.parent);
@@ -17,19 +18,42 @@ public class SegmentManager : MonoBehaviour
             newSegment.transform.localEulerAngles = new Vector3(0f, 0f, -11.25f * x);
             allSegments[x] = newSegment;
         }
-        // List<int> segmentStatus = new List<int>(32);
         for(int i=0;i<32;i++){segmentStatus.Add(0);}
-        
-        
-        Debug.Log("GENERATED " + segmentStatus.Count);
-        // PokeHoles(Random.Range(4, 5));
         WipeSegments();
-        // InvokeRepeating("TestHolePoker", 2f, 2f);
+    }
+
+    public Coroutine colorCo;
+    private int oldColorIndex;
+
+    public void ChangeColor(int colorIndex){
+
+        if(colorCo != null){StopCoroutine(colorCo);colorCo = null;}
+        if(GameManager.isDaily){colorIndex = 0;}
+        if(oldColorIndex == colorIndex){
+            foreach(GameObject newObj in allSegments){
+                newObj.GetComponent<UnityEngine.UI.Image>().color = allColors[colorIndex];
+            }
+            return;
+        }
+        oldColorIndex = colorIndex;
+        colorCo = StartCoroutine(ColorIEnum(colorIndex));
+    }
+
+    public IEnumerator ColorIEnum(int colorIndex){
+        var elapsedTime = 0f;
+        var loadTime = 1f;
+    	while(elapsedTime < loadTime){
+            foreach(GameObject newObj in allSegments){
+                newObj.GetComponent<UnityEngine.UI.Image>().color = Color.Lerp(newObj.GetComponent<UnityEngine.UI.Image>().color, allColors[colorIndex], elapsedTime / loadTime);
+            }
+    		elapsedTime += Time.deltaTime;
+        	yield return new WaitForEndOfFrame();
+    	}
+
     }
 
     public void TestHolePoker(){
         WipeSegments();
-        // PokeHoles(Random.Range(8, 12));
     }
     public void WipeSegments(){
         foreach(GameObject newObj in allSegments){
@@ -83,10 +107,6 @@ public class SegmentManager : MonoBehaviour
 
             GameManager.ShuffleList(chosenIndexes);
             allChosenIndexes.Add(chosenIndexes);
-
-            // for (int p = 0; p < chosenIndexes.Count; p++){
-            //     Debug.Log($"Picker {picker + 1}, List {p + 1}: {chosenIndexes[p]}");
-            // }
         }
         for(int z = 0; z < allSegments.Count; z++){
             if(segmentStatus[z] == 1){allSegments[z].SetActive(false);}
@@ -118,4 +138,12 @@ public void UndoSegnmentPokeHole(List<int> segmentSpots){
         }
     }
 }
+
+public int CountStatus(){
+        var toReturn = 0;
+        for(int x = 0; x < segmentStatus.Count; x++){
+            toReturn += segmentStatus[x];
+        }
+        return toReturn;
+    }
 }

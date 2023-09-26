@@ -11,6 +11,20 @@
 ## Link To Web Build
 https://bb-dev.itch.io/starfield-digipick-simulator
 
+
+# v.2 notes
+  -Made the webgl play nice(r) with mobile devices.
+
+  -Added the Streak Manager/Daily Modes. Try a preseeded Master lock every day and keep your streak going.
+
+  -Added audio (captured with a loud TV and a phone. Not the best but c'est la vie)
+
+  -Undo/Auto buttons. Undo will roll back the last input, auto will attempt to align an available pick with the available holes.
+
+  -Ring highlighting, shows which picks belong in which segments. Turned off for Daily Mode.
+  
+  -Probably a couple more things but I wasn't keeping notes, oops.
+
 ## Description
 
 This is a recreation of the lock-picking "digipick" minigame from Bethesda's Starfield. Bethesda games always have great lockpicking minigames for some reason and Starfield is no exception to that rule. This project is made with C# and Unity 2022.1.23f1, though it should work with most versions of Unity.
