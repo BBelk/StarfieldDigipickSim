@@ -538,7 +538,7 @@ public void UndoButton(){
     }
 
     public void PreDaily(){
-        InputManager.DeBoldAllDifficultyText()
+        InputManager.DeBoldAllDifficultyText();
         allPickManagers[0].gameObject.transform.parent.gameObject.SetActive(false);
         textDirectObj.SetActive(true);
         textDirectObj.GetComponent<Text>().text = "Daily mode is a master level lock that can be attempted once per day.\nYou cannot use Undo or Auto, the rings will not highlight.";
