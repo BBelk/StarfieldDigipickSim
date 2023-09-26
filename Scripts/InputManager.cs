@@ -66,10 +66,10 @@ public class InputManager : MonoBehaviour
             // Debug.Log("W");
             GameManager.FindNextPickManager(1);
         }
-        if (Input.GetKeyDown(KeyCode.P)){
-            PlayerPrefs.DeleteAll();
-            Debug.Log("PLAYER PREFS DELETED");
-        }
+        // if (Input.GetKeyDown(KeyCode.P)){
+        //     PlayerPrefs.DeleteAll();
+        //     Debug.Log("PLAYER PREFS DELETED");
+        // }
     }
 
     public bool buttonHeld;
@@ -118,6 +118,16 @@ public class InputManager : MonoBehaviour
         allButtons[difficultyIndex].transform.GetChild(0).gameObject.GetComponent<TMP_Text>().text = "<b>" + allButtons[difficultyIndex].transform.GetChild(0).gameObject.GetComponent<TMP_Text>().text;
     }
 
+    public void DeBoldAllDifficultyText(){
+        foreach(Button newButt in allButtons){
+            var getString = newButt.transform.GetChild(0).gameObject.GetComponent<TMP_Text>().text;
+            if(getString.Contains("<b>")){
+               getString = getString.Remove(0,3);
+                newButt.transform.GetChild(0).gameObject.GetComponent<TMP_Text>().text = getString;
+                }
+        }
+    }
+
     public List<Color> allUndoAutoColors; //0 white 1 black 2 gray
     public List<GameObject> standardUndoAutoButtonObjects;
     public List<GameObject> mobileUndoAutoButtonObjects;
@@ -153,16 +163,18 @@ public class InputManager : MonoBehaviour
                 selectedList.Add(selectedUndoAutoButtonObjects[x]);
             }
         }
-        if(newAmount <= 0){isInteractable[buttonIndex] = false;}
-        if(newAmount > 0){isInteractable[buttonIndex] = true;}
+        // if(newAmount <= 0){isInteractable[buttonIndex] = false;}
+        // if(newAmount > 0){isInteractable[buttonIndex] = true;}
         // 0 button, 1 button text, 2 fill amount image, 3 cover image, 4 amount text
         if(newAmount <= 0){
+            isInteractable[buttonIndex] = false;
             selectedList[0].GetComponent<Button>().interactable = false;
             selectedList[2].GetComponent<Image>().fillAmount = 0f;
             selectedList[3].GetComponent<Image>().color = allUndoAutoColors[2];
             selectedList[4].GetComponent<TMP_Text>().text = "";
         }
         if(newAmount > 0){
+            isInteractable[buttonIndex] = true;
             selectedList[0].GetComponent<Button>().interactable = true;
             // selectedList[2].GetComponent<Image>().fillAmount = newFillAmount;
             // EndFillAmountCo(buttonIndex);
