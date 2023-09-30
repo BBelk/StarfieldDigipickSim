@@ -33,7 +33,7 @@ As far as I can tell, the digipick in Starfield works something like this.
 
 ~~I didn't get around to putting audio in, I figure the audio is an important part of the Starfield version so I want to take the time necessary to add in the closest version to the original that I can.~~ Audio now in as of v.2 (but if you can get cleaner audio then let me know). ~~Also, this version is missing the feature from the main game where you can auto-slot in picks. This wouldn't necessarily be too hard to implement but I would want to play the main game and take notes on how the feature works there first.~~ Added in v.2.
 
-v.3 - The save system has been overhauled so I can focus more on the actual game. I'd like to spend some time playing with resolutions/orientations for mobile, so that more phones can play it well. Then I'd like to make a first pass at the "endless mode", as well as prettying up the UI.
+v.0.3.0 - The save system has been overhauled so I can focus more on the actual game. I'd like to spend some time playing with resolutions/orientations for mobile, so that more phones can play it well. Then I'd like to make a first pass at the "endless mode", as well as prettying up the UI.
 
 Future-future development, this would make a great downloadable mobile game. Hit me up Todd.
 
@@ -54,7 +54,12 @@ https://www.gamesradar.com/this-starfield-locksmith-has-given-the-space-rpgs-loc
 
 ## Version Notes
 
-### v.3 notes
+### v.0.4.0 notes
+  -Added more stats, specifically a global time average as well as daily/global moves, where one movement of the pick is a move.
+
+  -Premptively fixed a bug where if you started a game at 11:59 and played until 12:01 or whenever, it would save the wrong date. Also it will check every minute to see if it's a new day and adjust the Daily button's interactbility accordingly
+
+### v.0.3.0 notes
 
   -Added a stats screen. Shows a handful of interesting statistics, seperated by daily mode and regular sandbox mode. Ran out of ideas so leave a comment on the itch page if you think of more stats to track!
 
@@ -66,7 +71,7 @@ https://www.gamesradar.com/this-starfield-locksmith-has-given-the-space-rpgs-loc
 
   -Fixed a bug where your first pick on the daily run would accurately show which rings it would fit into.
 
-### v.2 notes
+### v.0.2.0 notes
   -Made the webgl play nice(r) with mobile devices.
 
   -Added the Streak Manager/Daily Modes. Try a preseeded Master lock every day and keep your streak going.

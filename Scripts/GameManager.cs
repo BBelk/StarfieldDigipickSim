@@ -4,14 +4,19 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
     public StreakManager StreakManager;
+    
+    public GameObject clearStatsPanelObject;
+    public GameObject screenCoverPanelObject;
     public Text debugText;
     public bool doBeTesting;
     void Start(){
+        screenCoverPanelObject.SetActive(true);
         Invoke("StartDelay", 0.05f);
     }
 
@@ -47,7 +52,7 @@ public class GameManager : MonoBehaviour
         if(doInitialUndoAuto != 0){
             LoadUndoAuto();
         }
-
+        screenCoverPanelObject.SetActive(false);
     }
 
     public OptionsManager OptionsManager;
@@ -81,6 +86,8 @@ public class GameManager : MonoBehaviour
 
     public List<int> allUndoAutoAmounts;
     public List<float> allUndoAutoFillAmounts;
+
+    public int moveCounter;
     public void Generator(){
 
         foreach(SegmentManager newSM in allSegmentManagers){
@@ -100,6 +107,7 @@ public class GameManager : MonoBehaviour
     }
 
     public void NewInput(int dir){
+        moveCounter += 1;
         allPickManagers[chosenPickManagerInt].MovePicks(dir);
         mainPickManager.MovePicks(dir);
     }
@@ -120,6 +128,7 @@ public class GameManager : MonoBehaviour
 
     public void DifficultySelection(int difficultyIndex, long seed = 0){
         // novice 0, advanced 1, expert 2, master 3
+        moveCounter = 0;
         ResetAll();
         OptionsManager.EndTimer();
         allPickManagers[0].gameObject.transform.parent.gameObject.SetActive(true);
@@ -317,16 +326,20 @@ public class GameManager : MonoBehaviour
                 allPickManagers[0].gameObject.transform.parent.gameObject.SetActive(false);
                 textDirectObj.SetActive(true);
                 if(!isDaily){
-                    textDirectObj.GetComponent<Text>().text = "Great Job!\n\nSelect a difficulty to begin.";
+                    textDirectObj.GetComponent<Text>().text = $"Great Job!\n\nYour time was {OptionsManager.timerText.text} and took {moveCounter} moves.\n\n Select a difficulty to begin.";
                     IncreaseFillAmount();
                 }
                 if(isDaily){
-                    textDirectObj.GetComponent<Text>().text = $"Great Job!\n\nYour time was {OptionsManager.timerText.text}.\n\nTry again tomorrow!";
+                    textDirectObj.GetComponent<Text>().text = $"Great Job!\n\nYour time was {OptionsManager.timerText.text} and took {moveCounter} moves.\n\nTry again tomorrow!";
                     viewStatsButtonObject.SetActive(true);
-                    StreakManager.SaveInput(2, (int)OptionsManager.elapsedTime);
-                    
+                    StreakManager.SaveInput(2, (int)OptionsManager.elapsedTime, moveCounter);
                 }
+
                 StreakManager.UpdateCount(0);
+                //
+                StreakManager.UpdateCount(3, (int)OptionsManager.elapsedTime);
+                StreakManager.UpdateCount(4, moveCounter);
+                //
                 OptionsManager.EndTimer();
                 InputManager.HeGoes();
                 canInput = false;
@@ -558,8 +571,20 @@ public void UndoButton(){
     public void StartDaily(){
         isDaily = true;
         DifficultySelection(3, StreakManager.currentDayUnixTimestamp);
-        StreakManager.SaveInput(1, 0);
+        StreakManager.SaveInput(1);
         SetUndoAuto(true);
+    }
+    public void ClearAllStatsOpen(){
+        clearStatsPanelObject.SetActive(true);
+    }
+
+    public void ClearAllStatsConfirm(){
+        StreakManager.DeleteFile();
+        SceneManager.LoadScene(0);
+    }
+
+    public void ClearAllStatsCancel(){
+        clearStatsPanelObject.SetActive(false);
     }
 
 }

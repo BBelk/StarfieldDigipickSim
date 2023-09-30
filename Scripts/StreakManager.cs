@@ -16,6 +16,8 @@ public class StreakManager : MonoBehaviour
     public GameManager GameManager;
     public TMP_Text countTMP_Text;
     public long currentDayUnixTimestamp;
+    public long activeDayUnixTimestamp;
+
     public List<GameObject> allStarCountPanelObjects;
     public int completedCount;
     public int attemptedCount;
@@ -116,7 +118,7 @@ public void DeleteFile(){
         if (!File.Exists(filePath))
         {
             allSavedStrings.Clear();
-            allSavedStrings.Add($"Digipick-Save-File {allGlobalCounts[0]} {allGlobalCounts[1]} {allGlobalCounts[2]}");
+            allSavedStrings.Add($"Digipick-Save-File {allGlobalCounts[0]} {allGlobalCounts[1]} {allGlobalCounts[2]} {allGlobalCounts[3]} {allGlobalCounts[4]}");
             allSavedStrings.Add($"-THIS-LINE-INTENTIONALLY-LEFT-BLANK-");
             allSavedStrings.Add($"-THIS-LINE-INTENTIONALLY-LEFT-BLANK-");
             File.WriteAllLines(filePath, allSavedStrings.ToArray());
@@ -126,7 +128,18 @@ public void DeleteFile(){
         for(int w = 0; w < allGlobalCounts.Count; w++){
             allGlobalCounts[w] = GetIntFromString(allSavedStrings[0], w+1);
         }
+        if(refreshCo != null){
+            StopCoroutine(refreshCo); refreshCo = null;
+        }
+        refreshCo = StartCoroutine(RefreshIEnum());
     }
+
+    public Coroutine refreshCo;
+    public IEnumerator RefreshIEnum(){
+        UnityEngine.Debug.Log("START CO");
+        yield return new WaitForSeconds(60f);
+        ReadLinesFromFile();
+    } 
 
     public void WriteLinesToFile(){
         string filePath = Path.Combine(persistentDataPathString, "saveFile.txt");
@@ -166,12 +179,13 @@ public void DeleteFile(){
         #endif
     }
 
-    public void SaveInput(int newInput, int timeElapsed){
+    public void SaveInput(int newInput, int timeElapsed = 0, int moveCounter = 0){
         if(newInput == 1){
-            allSavedStrings.Add($"{currentDayUnixTimestamp} {newInput} {0} {0}");
+            activeDayUnixTimestamp = currentDayUnixTimestamp;
+            allSavedStrings.Add($"{activeDayUnixTimestamp} {newInput} {0} {0}");
         }
         if(newInput == 2){
-            allSavedStrings[allSavedStrings.Count - 1] = $"{currentDayUnixTimestamp} {newInput} {timeElapsed} {0}";
+            allSavedStrings[allSavedStrings.Count - 1] = $"{activeDayUnixTimestamp} {newInput} {timeElapsed} {moveCounter}";
         }
         WriteLinesToFile();
         CheckPreviousEntriesFromStringList();
@@ -203,7 +217,7 @@ public void DeleteFile(){
         return parts[newPartIndex];
     }
     else{
-        return string.Empty;
+        return "0";
     }
 }
     //// 0 unixtimestamp, 1 lock status, 2 time for solve, 3 turns to solve? 4 uhhh 
@@ -239,11 +253,13 @@ public void DeleteFile(){
         newTimeStatus = 3;
             var list9000Index = 0;
             List<int> avgTimeList = new List<int>();
+            List<int> avgMoveCounterList = new List<int>();
             streakList.Clear();
         var lastUnix = newDayUnixTimestamp;
         if(allSavedStrings.Count > 3){
         for(int x = allSavedStrings.Count - 1; x > 2; x--){
             avgTimeList.Add(GetIntFromString(allSavedStrings[x], 2));
+            avgMoveCounterList.Add(GetIntFromString(allSavedStrings[x], 3));
             newTimeStatus = GetTimeStatusFromString(allSavedStrings[x]);
             
             if(newTimeStatus == 1){attemptedCount += 1;}
@@ -272,16 +288,25 @@ public void DeleteFile(){
             }
         }
         getTime = getTime/avgTimeList.Count;
+
+        var getMoveCounter = 0;
+        for(int x = 0; x< avgMoveCounterList.Count; x++){
+            if(avgMoveCounterList[x] != 0){
+                getMoveCounter += avgMoveCounterList[x];
+            }
+        }
+        getMoveCounter = getMoveCounter/avgMoveCounterList.Count;
+
+
         countTMP_Text.text = "" + streakList[0];
-        UpdateStats(combinedCount, getTime);
+        UpdateStats(combinedCount, getTime, getMoveCounter);
     }
 
-    public void UpdateStats(int combinedCount, int getTime){
+    public void UpdateStats(int combinedCount, int getTime, int getMoveCounter){
         allStatTMP_Texts[0].text = ""+combinedCount;
         //
         float percent = ((float)completedCount / combinedCount) * 100f;
         percent = Mathf.Round(percent * 10f) / 10f;
-        UnityEngine.Debug.Log($"{completedCount}, {combinedCount}, {percent}");
         allStatTMP_Texts[1].text = $"{percent}%";
         //
         int minutes = (int)(getTime / 60);
@@ -301,9 +326,19 @@ public void DeleteFile(){
         }
         allStatTMP_Texts[4].text = $"{streakList[largestValueIndex]}";
         //
+        allStatTMP_Texts[8].text = $"{getMoveCounter}";
+        //
         allStatTMP_Texts[5].text = ""+allGlobalCounts[0];
         allStatTMP_Texts[6].text = ""+allGlobalCounts[1];
         allStatTMP_Texts[7].text = ""+allGlobalCounts[2];
+        //
+        int minutes2 = (int)(allGlobalCounts[3] / 60);
+        int seconds2 = (int)(allGlobalCounts[3] % 60);
+        string timerTextString2 = $"{minutes2}:{seconds2:D2}";
+        allStatTMP_Texts[9].text = $"{timerTextString2}";
+        //
+        if(allGlobalCounts[0] == 0 || allGlobalCounts[4] == 0){return;}
+        allStatTMP_Texts[10].text = ""+(int)(allGlobalCounts[4] / allGlobalCounts[0]);
     }
 
     public void DeactivateStarCountObjects(){
@@ -347,9 +382,20 @@ public void DeleteFile(){
         LayoutRebuilder.ForceRebuildLayoutImmediate( countTMP_Text.transform.parent.gameObject.GetComponent<RectTransform>());
     }
 
-    public void UpdateCount(int countIndex){
-        allGlobalCounts[countIndex] += 1;
-        allSavedStrings[0] = $"Digipick-Save-File {allGlobalCounts[0]} {allGlobalCounts[1]} {allGlobalCounts[2]}";
+    public void UpdateCount(int countIndex, int newAmount = 0){
+        if(newAmount == 0){newAmount = 1;}
+        allGlobalCounts[countIndex] += newAmount;
+        allSavedStrings[0] = $"Digipick-Save-File {allGlobalCounts[0]} {allGlobalCounts[1]} {allGlobalCounts[2]} {allGlobalCounts[3]} {allGlobalCounts[4]}";
+        if(DelayWriteCo != null){
+            StopCoroutine(DelayWriteCo); DelayWriteCo = null;
+        }
+        DelayWriteCo = StartCoroutine(SlightDelayUpdateWriteIEnum());
+    }
+
+    public Coroutine DelayWriteCo;
+
+    public IEnumerator SlightDelayUpdateWriteIEnum(){
+        yield return new WaitForSeconds(0.1f);
         WriteLinesToFile();
     }
 
