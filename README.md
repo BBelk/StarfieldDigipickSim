@@ -49,6 +49,8 @@ https://kotaku.com/starfield-lockpicking-digipick-minigame-play-online-185088414
 
 https://automaton-media.com/articles/newsjp/20230929-266495/
 
+https://www.gamesradar.com/this-starfield-locksmith-has-given-the-space-rpgs-lockpicking-a-game-of-its-own/
+
 
 ## Version Notes
 

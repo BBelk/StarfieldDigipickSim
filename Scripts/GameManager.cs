@@ -317,7 +317,7 @@ public class GameManager : MonoBehaviour
                 allPickManagers[0].gameObject.transform.parent.gameObject.SetActive(false);
                 textDirectObj.SetActive(true);
                 if(!isDaily){
-                    textDirectObj.GetComponent<Text>().text = "Great Job!\nSelect a difficulty to begin.";
+                    textDirectObj.GetComponent<Text>().text = "Great Job!\n\nSelect a difficulty to begin.";
                     IncreaseFillAmount();
                 }
                 if(isDaily){

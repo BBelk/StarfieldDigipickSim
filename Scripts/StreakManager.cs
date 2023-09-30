@@ -36,13 +36,6 @@ public class StreakManager : MonoBehaviour
     // 0 total, 1 undo, 2 auto
 
     public GameObject statsScreenObject;
-public void GotNewString(string newString){
-    // I was using this to print stuff to the streak counter text box. Imma leave it, its handing for testing things in webgl
-    UnityEngine.Debug.Log("" + newString);
-    countTMP_Text.text = newString;
-    countTMP_Text.fontSize = 24f;
-    LayoutRebuilder.ForceRebuildLayoutImmediate(countTMP_Text.transform.parent.gameObject.GetComponent<RectTransform>());
-}
     void Start()
     {
         DeactivateStarCountObjects();
@@ -50,20 +43,20 @@ public void GotNewString(string newString){
 
         //I've been doing a lot of testing and I'm tired, so for now this is a bit of a mess. Sue me! I'll clean it later
 
+
         if(doDelete){
             DeleteFile();
             ReadLinesFromFile();
+            return;
         }
-
-
         if(testing){
             DeleteFile();
-        }
-        ReadLinesFromFile();
-        if(testing){
+            ReadLinesFromFile();
             GenerateTestDataFromString();
             WriteLinesToFile();
+            return;
         }
+        ReadLinesFromFile();
         CheckPreviousEntriesFromStringList();
     }
 
@@ -117,28 +110,21 @@ public void DeleteFile(){
 
         if (!Directory.Exists(persistentDataPathString))
         {
-            UnityEngine.Debug.Log("PATH DOES NOT EXIST READ");
             Directory.CreateDirectory(persistentDataPathString);
         }
 
         if (!File.Exists(filePath))
         {
-            UnityEngine.Debug.Log("FILE DOES NOT EXIST READ");
             allSavedStrings.Clear();
             allSavedStrings.Add($"Digipick-Save-File {allGlobalCounts[0]} {allGlobalCounts[1]} {allGlobalCounts[2]}");
             allSavedStrings.Add($"-THIS-LINE-INTENTIONALLY-LEFT-BLANK-");
             allSavedStrings.Add($"-THIS-LINE-INTENTIONALLY-LEFT-BLANK-");
             File.WriteAllLines(filePath, allSavedStrings.ToArray());
             PushToFile();
-
-            // return;
         }
         allSavedStrings = new List<string>(File.ReadAllLines(filePath));
         for(int w = 0; w < allGlobalCounts.Count; w++){
             allGlobalCounts[w] = GetIntFromString(allSavedStrings[0], w+1);
-        }
-        for(int x = 0; x< allSavedStrings.Count; x++){
-            UnityEngine.Debug.Log("LOADED: " + allSavedStrings[x]);
         }
     }
 
@@ -149,7 +135,6 @@ public void DeleteFile(){
         }
         File.WriteAllLines(filePath, allSavedStrings.ToArray());
         PushToFile();
-        UnityEngine.Debug.Log("SAVED TO FILE WRITE");
     }
 
     public string persistentDataPathString;
@@ -182,7 +167,6 @@ public void DeleteFile(){
     }
 
     public void SaveInput(int newInput, int timeElapsed){
-        // PlayerPrefs.SetInt("" + (currentDayUnixTimestamp), newInput);
         if(newInput == 1){
             allSavedStrings.Add($"{currentDayUnixTimestamp} {newInput} {0} {0}");
         }
@@ -191,9 +175,6 @@ public void DeleteFile(){
         }
         WriteLinesToFile();
         CheckPreviousEntriesFromStringList();
-
-        // toggleStreak = !toggleStreak;
-        // ToggleStreak();
     }
     
     public void GenerateTestDataFromString(){
@@ -204,7 +185,6 @@ public void DeleteFile(){
         var elapsedTime = 61;
         for(int x = 0; x < generateInt; x++){
             var rand = UnityEngine.Random.Range(1, 3);
-            // PlayerPrefs.SetInt("" + (newDayUnixTimestamp -= 86400), rand);
             newDayUnixTimestamp -= 86400;
             allSavedStrings.Insert(3, $"{newDayUnixTimestamp} {rand} {elapsedTime +=1}");
         }
@@ -217,8 +197,6 @@ public void DeleteFile(){
             allSavedStrings.Insert(3, $"{newDayUnixTimestamp} {rand} {elapsedTime +=8}");
         }
     }
-
-    ////
     public string ReturnPartFromString(string inputString, int newPartIndex){
     string[] parts = inputString.Split(' ');
     if (newPartIndex >= 0 && newPartIndex < parts.Length){
@@ -248,25 +226,19 @@ public void DeleteFile(){
         completedCount = 0;
         attemptedCount = 0;
 
-        UnityEngine.Debug.Log("allSavedStrings.Count:" + allSavedStrings.Count);
-
         var newDayUnixTimestamp = currentDayUnixTimestamp;
         dailyButton.interactable = true;
         var newTimeStatus = 0;
         if(allSavedStrings.Count <= 3){DeactivateStarCountObjects();return;}
             
         if(GetUnixTimestampFromString(allSavedStrings[allSavedStrings.Count -1]) == currentDayUnixTimestamp){
-            //today already played
-            UnityEngine.Debug.Log("TODAY PLAYED");
             newTimeStatus = GetTimeStatusFromString(allSavedStrings[allSavedStrings.Count -1]);
             if(newTimeStatus >= 1){;dailyButton.interactable = false;}
             
         }
         newTimeStatus = 3;
-        // while(newTimeStatus != 0){
             var list9000Index = 0;
             List<int> avgTimeList = new List<int>();
-            // streakList.Add(0);
             streakList.Clear();
         var lastUnix = newDayUnixTimestamp;
         if(allSavedStrings.Count > 3){
@@ -300,9 +272,6 @@ public void DeleteFile(){
             }
         }
         getTime = getTime/avgTimeList.Count;
-        //
-        // UnityEngine.Debug.Log("GET TIME: " + getTime);
-
         countTMP_Text.text = "" + streakList[0];
         UpdateStats(combinedCount, getTime);
     }
