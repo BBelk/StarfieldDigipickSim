@@ -85,9 +85,10 @@ public class OptionsManager : MonoBehaviour
     public float startTime;
     public bool isTimerRunning;
     public Coroutine timerCo;
+    public float elapsedTime;
     private IEnumerator UpdateTimer(){
         while (isTimerRunning){
-        float elapsedTime = Time.time - startTime;
+        elapsedTime = Time.time - startTime;
         int minutes = (int)(elapsedTime / 60);
         int seconds = (int)(elapsedTime % 60);
 

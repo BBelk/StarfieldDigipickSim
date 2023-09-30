@@ -74,6 +74,7 @@ public class GameManager : MonoBehaviour
 
     public GameObject textDirectObj;
     public GameObject dailyContinueButtonObject;
+    public GameObject viewStatsButtonObject;
 
     public List<RectTransform> allUIRectTransforms;
     public List<RectTransform> allUIAnchorRectTransforms; 
@@ -124,6 +125,7 @@ public class GameManager : MonoBehaviour
         allPickManagers[0].gameObject.transform.parent.gameObject.SetActive(true);
         textDirectObj.SetActive(false);
         canInput = true;
+        StreakManager.CloseStatsIfOpen();
 
         if(seed <= 0){
             SetUndoAuto();
@@ -260,6 +262,7 @@ public class GameManager : MonoBehaviour
 
     public void ResetAll(){
         dailyContinueButtonObject.SetActive(false);
+        viewStatsButtonObject.SetActive(false);
         foreach(SegmentManager newSM in allSegmentManagers){
             newSM.WipeSegments();
         }
@@ -318,9 +321,12 @@ public class GameManager : MonoBehaviour
                     IncreaseFillAmount();
                 }
                 if(isDaily){
-                    textDirectObj.GetComponent<Text>().text = $"Great Job!\nYour time was {OptionsManager.timerText.text}.\n\nTry again tomorrow!";
-                    StreakManager.SaveInput(2);
+                    textDirectObj.GetComponent<Text>().text = $"Great Job!\n\nYour time was {OptionsManager.timerText.text}.\n\nTry again tomorrow!";
+                    viewStatsButtonObject.SetActive(true);
+                    StreakManager.SaveInput(2, (int)OptionsManager.elapsedTime);
+                    
                 }
+                StreakManager.UpdateCount(0);
                 OptionsManager.EndTimer();
                 InputManager.HeGoes();
                 canInput = false;
@@ -517,6 +523,7 @@ public void UndoButton(){
 
     public void SubtractUndoAutoAmount(int undoAutoIndex){
         allUndoAutoAmounts[undoAutoIndex] -= 1;
+        StreakManager.UpdateCount(undoAutoIndex + 1);
         SetUndoAuto();
         SaveUndoAuto();
     }
@@ -540,17 +547,19 @@ public void UndoButton(){
     public void PreDaily(){
         InputManager.DeBoldAllDifficultyText();
         allPickManagers[0].gameObject.transform.parent.gameObject.SetActive(false);
+        StreakManager.CloseStatsIfOpen();
         textDirectObj.SetActive(true);
         textDirectObj.GetComponent<Text>().text = "Daily mode is a master level lock that can be attempted once per day.\nYou cannot use Undo or Auto, the rings will not highlight.";
         dailyContinueButtonObject.SetActive(true);
+        viewStatsButtonObject.SetActive(false);
     }
 
     public bool isDaily;
     public void StartDaily(){
-        DifficultySelection(3, StreakManager.currentDayUnixTimestamp);
-        StreakManager.SaveInput(1);
-        SetUndoAuto(true);
         isDaily = true;
+        DifficultySelection(3, StreakManager.currentDayUnixTimestamp);
+        StreakManager.SaveInput(1, 0);
+        SetUndoAuto(true);
     }
 
 }

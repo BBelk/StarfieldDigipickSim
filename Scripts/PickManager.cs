@@ -140,6 +140,10 @@ public class PickManager : MonoBehaviour
         used = false;
     }
 
+    public void ExtraSubmit(){
+        if(GameManager.chosenPickManagerInt == myIndex && highlightCircleObj.activeSelf == true){GameManager.SubmitButton();}
+    }
+
     public void Selected(){
         if(used || !inPlay){return;}
         highlightCircleObj.SetActive(true);
