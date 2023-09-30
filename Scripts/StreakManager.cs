@@ -332,8 +332,10 @@ public void DeleteFile(){
         allStatTMP_Texts[6].text = ""+allGlobalCounts[1];
         allStatTMP_Texts[7].text = ""+allGlobalCounts[2];
         //
-        int minutes2 = (int)(allGlobalCounts[3] / 60);
-        int seconds2 = (int)(allGlobalCounts[3] % 60);
+        if(allGlobalCounts[0] == 0 || allGlobalCounts[3] == 0){return;}
+        var newTime = allGlobalCounts[3]/allGlobalCounts[0];
+        int minutes2 = (int)(newTime / 60);
+        int seconds2 = (int)(newTime % 60);
         string timerTextString2 = $"{minutes2}:{seconds2:D2}";
         allStatTMP_Texts[9].text = $"{timerTextString2}";
         //

@@ -139,14 +139,13 @@ public class GameManager : MonoBehaviour
         if(seed <= 0){
             SetUndoAuto();
             isDaily = false;
+            UnityEngine.Random.InitState((int)(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
         }
 
         if(seed != 0){
             //is daily
             int intSeed = (int)(seed % int.MaxValue);
-            Debug.Log("SEEED: " + intSeed);
-        // Set the seed for the Random Number Generator
-        UnityEngine.Random.InitState(intSeed);
+            UnityEngine.Random.InitState(intSeed);
         }
         
         chosenSegmentManagerInt = 0;

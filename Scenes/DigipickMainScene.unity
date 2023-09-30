@@ -14538,7 +14538,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '<size=50%>v0.4.0</size>\t\t\tPress ? to close
+  m_text: '<size=50%>v0.4.1</size>\t\t\tPress ? to close
 
     A/D to rotate -  Q/W
     to switch picks'
